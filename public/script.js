@@ -266,9 +266,9 @@ async function handleExplainSubmit(e) {
   spinner.classList.remove('hidden');
   btnText.textContent = 'Gemma 4 is Explaining...';
 
-  // 30-second client timeout controller
+  // 65-second client timeout controller
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), 65000);
 
   try {
     const response = await fetch('/api/explain', {
@@ -418,7 +418,7 @@ async function handleSummarizeSubmit(e) {
   btnText.textContent = 'Gemma 4 is Summarizing...';
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), 65000);
 
   try {
     const response = await fetch('/api/summarize', {
@@ -501,7 +501,7 @@ async function handleQuizSubmit(e) {
   btnText.textContent = 'Gemma 4 is Formulating 5 Questions...';
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 35000);
+  const timeoutId = setTimeout(() => controller.abort(), 65000);
 
   try {
     const response = await fetch('/api/quiz', {

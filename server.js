@@ -13,12 +13,27 @@ const app = express();
 // Enforce Port 3000 per AI Studio runtime requirements
 const PORT = 3000;
 
-// Resolve verified model: priority valid GEMINI_MODEL -> valid GEMMA_MODEL -> default gemma-4-26b-a4b-it
+// Resolve verified model: normalize human-friendly names (e.g. "Gemma 4 26B A4B IT" -> "gemma-4-26b-a4b-it")
 function resolveModel() {
-  const envModel = process.env.GEMINI_MODEL || process.env.GEMMA_MODEL;
-  if (envModel && !envModel.startsWith('AQ.') && envModel.length < 50) {
-    return envModel;
+  const rawModel = (process.env.GEMINI_MODEL || process.env.GEMMA_MODEL || '').trim();
+
+  // If empty or an opaque token
+  if (!rawModel || rawModel.startsWith('AQ.')) {
+    return 'gemma-4-26b-a4b-it';
   }
+
+  // Normalize human-friendly names with spaces, underscores, or uppercase letters
+  const normalized = rawModel.toLowerCase().replace(/_/g, '-').replace(/\s+/g, '-');
+
+  if (normalized.includes('gemma-4') || normalized.includes('gemma') || normalized.includes('26b')) {
+    return 'gemma-4-26b-a4b-it';
+  }
+
+  // If already a valid format (lowercase letters, numbers, hyphens, periods, slashes)
+  if (/^[a-zA-Z0-9_\-\.\/]+$/.test(rawModel)) {
+    return rawModel;
+  }
+
   return 'gemma-4-26b-a4b-it';
 }
 const DEFAULT_MODEL = resolveModel();
@@ -50,8 +65,8 @@ function getGenAI() {
 
 // Unified, safe error handler (Problem B Fix)
 function handleApiError(err, modelName, res) {
-  console.error(`[StudyMate Error with ${modelName}]:`, err?.message || err);
   const errMsg = err?.message || String(err);
+  console.error(`[StudyMate Server Error] [Model: ${modelName}]:`, errMsg);
 
   if (err.code === 'CONFIG_MISSING_API_KEY' || errMsg.includes('API_KEY')) {
     return res.status(500).json({
@@ -60,6 +75,16 @@ function handleApiError(err, modelName, res) {
       details: 'Please create a .env file in the project root containing GEMINI_API_KEY=your_key.',
       code: 'API_KEY_MISSING',
       guidance: 'Get a free key from https://aistudio.google.com/ and paste it into your .env file.',
+    });
+  }
+
+  if (errMsg.includes('unexpected model name format') || errMsg.includes('INVALID_ARGUMENT')) {
+    return res.status(400).json({
+      success: false,
+      error: `Invalid model name format: '${modelName}'.`,
+      details: errMsg,
+      code: 'INVALID_MODEL_FORMAT',
+      guidance: `The model identifier must be formatted as lowercase letters and hyphens (e.g. 'gemma-4-26b-a4b-it'). Check your GEMINI_MODEL setting in .env.`,
     });
   }
 
@@ -440,36 +465,14 @@ REQUIREMENTS:
 
     const userPrompt = `Generate a 5-question multiple-choice quiz on the topic: "${topic.trim()}". Return ONLY JSON.`;
 
-    // Attempt structured JSON schema
+    // Use fast JSON generation with our self-healing parseQuizResponse
     const response = await ai.models.generateContent({
       model,
       contents: userPrompt,
       config: {
         systemInstruction,
         responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            questions: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  question: { type: Type.STRING },
-                  options: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING },
-                  },
-                  correctAnswer: { type: Type.STRING },
-                  explanation: { type: Type.STRING },
-                },
-                required: ['question', 'options', 'correctAnswer', 'explanation'],
-              },
-            },
-          },
-          required: ['questions'],
-        },
-        temperature: 0.4,
+        temperature: 0.3,
       },
     });
 
