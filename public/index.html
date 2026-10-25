@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyMate AI - Make Every Study Session Count</title>
+  <meta name="description" content="Turn confusing topics into clear ideas, dense notes into essentials, and curiosity into confidence with Gemma 4.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Model Status Bar -->
+  <div class="status-bar">
+    <div class="container status-inner">
+      <div class="status-left">
+        <span class="status-dot" id="server-status-dot"></span>
+        <span>Engineered with <strong>Gemma 4 26B A4B IT</strong></span>
+      </div>
+      <div class="status-right" id="status-model-badge">
+        Model: <span class="mono-badge">gemma-4-26b-a4b-it</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="container header-inner">
+      <div class="brand-logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">StudyMate <span class="ai-badge">AI</span></div>
+          <div class="brand-tagline">Make every study session count.</div>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button class="nav-btn active" data-tab="explain">Explain Topic</button>
+        <button class="nav-btn" data-tab="summarize">Summarize Notes</button>
+        <button class="nav-btn" data-tab="quiz">Generate Quiz</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <div class="hero-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span>Your Intelligent Study Assistant</span>
+      </div>
+      <h1 class="hero-title">Make every study session count.</h1>
+      <p class="hero-subtitle">
+        Turn confusing topics into clear ideas, dense notes into essentials, and curiosity into confidence.
+      </p>
+
+      <!-- Quick Tab Switcher -->
+      <div class="tab-switcher">
+        <button class="tab-pill active" id="tab-btn-explain" onclick="switchTab('explain')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          1. Explain Topic
+        </button>
+        <button class="tab-pill" id="tab-btn-summarize" onclick="switchTab('summarize')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          2. Summarize Notes
+        </button>
+        <button class="tab-pill" id="tab-btn-quiz" onclick="switchTab('quiz')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          3. Generate Quiz
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Workspace -->
+  <main class="container workspace-container">
+    <!-- Global Alert Box -->
+    <div id="global-alert" class="alert-box hidden" role="alert">
+      <div class="alert-icon" id="alert-icon"></div>
+      <div class="alert-content">
+        <div class="alert-title" id="alert-title"></div>
+        <div class="alert-message" id="alert-message"></div>
+      </div>
+      <button class="alert-close" onclick="hideAlert()">&times;</button>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: EXPLAIN A TOPIC -->
+    <!-- ======================================================== -->
+    <section id="panel-explain" class="feature-panel active">
+      <div class="card form-card">
+        <div class="card-header">
+          <div class="header-icon purple-bg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div>
+            <h2>Explain a Topic</h2>
+            <p>Get structured definitions, step-by-step logic, everyday analogies, and key takeaways.</p>
+          </div>
+        </div>
+
+        <!-- Sample Topic Presets -->
+        <div class="presets-row">
+          <span class="presets-label">Quick Samples:</span>
+          <button type="button" class="preset-btn" onclick="fillExplain('Photosynthesis', 'Biology', 'Beginner')">Photosynthesis</button>
+          <button type="button" class="preset-btn" onclick="fillExplain('Dijkstra\'s Algorithm', 'Computer Science', 'Intermediate')">Dijkstra's Algorithm</button>
+          <button type="button" class="preset-btn" onclick="fillExplain('CRISPR-Cas9', 'Genetics', 'Advanced')">CRISPR-Cas9</button>
+          <button type="button" class="preset-btn" onclick="fillExplain('Keynesian Multiplier', 'Economics', 'Intermediate')">Keynesian Multiplier</button>
+        </div>
+
+        <form id="form-explain" onsubmit="handleExplainSubmit(event)">
+          <div class="form-grid">
+            <div class="form-group flex-2">
+              <label for="explain-topic">Topic Name <span class="req">*</span></label>
+              <input type="text" id="explain-topic" placeholder="e.g. Backpropagation, Photosynthesis, Mitosis..." required autocomplete="off">
+            </div>
+            <div class="form-group flex-1">
+              <label for="explain-subject">Subject (Optional)</label>
+              <input type="text" id="explain-subject" placeholder="e.g. Computer Science, Biology, Physics">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Explanation Level</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill">
+                <input type="radio" name="explain-level" value="Beginner">
+                <span>Beginner (Simple & Intuitive)</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="explain-level" value="Intermediate" checked>
+                <span>Intermediate (Collegiate Standard)</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="explain-level" value="Advanced">
+                <span>Advanced (Rigorous Technical)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-explain-submit" class="btn btn-primary">
+              <span class="btn-spinner hidden" id="spinner-explain"></span>
+              <span class="btn-text" id="btn-text-explain">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Explain with AI
+              </span>
+            </button>
+            <button type="button" class="btn btn-ghost" onclick="resetExplain()">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Area -->
+      <div id="results-explain" class="card result-card hidden">
+        <div class="result-header">
+          <div class="result-meta">
+            <span class="badge badge-purple" id="result-explain-level">Intermediate</span>
+            <span class="badge badge-slate" id="result-explain-subject">General</span>
+            <span class="badge badge-gemma">Powered by Gemma 4</span>
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-sm btn-outline" onclick="copyContent('output-explain-content')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="downloadContent('explanation.md', 'output-explain-content')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download
+            </button>
+          </div>
+        </div>
+        <div class="markdown-body" id="output-explain-content"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: SUMMARIZE NOTES -->
+    <!-- ======================================================== -->
+    <section id="panel-summarize" class="feature-panel">
+      <div class="card form-card">
+        <div class="card-header">
+          <div class="header-icon blue-bg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <h2>Summarize Study Notes</h2>
+            <p>Strictly grounded summaries. No invented facts. High-yield definitions and revision points.</p>
+          </div>
+        </div>
+
+        <!-- Sample Notes Presets -->
+        <div class="presets-row">
+          <span class="presets-label">Load Sample Notes:</span>
+          <button type="button" class="preset-btn" onclick="fillSampleNotes('os')">OS: Deadlocks & Semaphores</button>
+          <button type="button" class="preset-btn" onclick="fillSampleNotes('bio')">Biology: Cellular Respiration</button>
+        </div>
+
+        <form id="form-summarize" onsubmit="handleSummarizeSubmit(event)">
+          <div class="form-group">
+            <div class="label-with-counter">
+              <label for="summarize-notes">Paste Study Notes / Textbook Text <span class="req">*</span></label>
+              <span class="char-counter" id="notes-char-counter">0 chars</span>
+            </div>
+            <textarea id="summarize-notes" rows="8" placeholder="Paste lecture slides, textbook excerpts, or reading assignments here..." required oninput="updateNotesCounter()"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Summary Style</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill">
+                <input type="radio" name="summary-style" value="Concise">
+                <span>Concise (Core Highlights)</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="summary-style" value="Detailed" checked>
+                <span>Detailed (Comprehensive)</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="summary-style" value="Exam Preparation">
+                <span>Exam Preparation (High-Yield)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-summarize-submit" class="btn btn-primary">
+              <span class="btn-spinner hidden" id="spinner-summarize"></span>
+              <span class="btn-text" id="btn-text-summarize">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Summarize Notes
+              </span>
+            </button>
+            <button type="button" class="btn btn-ghost" onclick="resetSummarize()">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Area -->
+      <div id="results-summarize" class="card result-card hidden">
+        <div class="result-header">
+          <div class="result-meta">
+            <span class="badge badge-blue" id="result-summary-style">Detailed Summary</span>
+            <span class="badge badge-emerald">Grounded in Provided Notes</span>
+            <span class="badge badge-gemma">Powered by Gemma 4</span>
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-sm btn-outline" onclick="copyContent('output-summarize-content')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <button class="btn btn-sm btn-outline" onclick="downloadContent('notes_summary.md', 'output-summarize-content')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download
+            </button>
+          </div>
+        </div>
+        <div class="markdown-body" id="output-summarize-content"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: GENERATE QUIZ -->
+    <!-- ======================================================== -->
+    <section id="panel-quiz" class="feature-panel">
+      <div class="card form-card" id="quiz-form-card">
+        <div class="card-header">
+          <div class="header-icon emerald-bg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+          </div>
+          <div>
+            <h2>Generate a 5-Question Quiz</h2>
+            <p>Interactive exam questions with instant scoring, feedback, and verified explanations.</p>
+          </div>
+        </div>
+
+        <div class="presets-row">
+          <span class="presets-label">Sample Quiz Topics:</span>
+          <button type="button" class="preset-btn" onclick="fillQuiz('Mitosis vs Meiosis')">Mitosis vs Meiosis</button>
+          <button type="button" class="preset-btn" onclick="fillQuiz('TCP/IP vs UDP')">TCP/IP vs UDP</button>
+          <button type="button" class="preset-btn" onclick="fillQuiz('Newton\'s Laws of Motion')">Newton's Laws of Motion</button>
+          <button type="button" class="preset-btn" onclick="fillQuiz('Object-Oriented Programming')">OOP Principles</button>
+        </div>
+
+        <form id="form-quiz" onsubmit="handleQuizSubmit(event)">
+          <div class="form-group">
+            <label for="quiz-topic">Topic Name <span class="req">*</span></label>
+            <input type="text" id="quiz-topic" placeholder="e.g. Operating Systems Synchronization, Organic Chemistry Functional Groups..." required autocomplete="off">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-quiz-submit" class="btn btn-primary">
+              <span class="btn-spinner hidden" id="spinner-quiz"></span>
+              <span class="btn-text" id="btn-text-quiz">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                Generate 5-Question Quiz
+              </span>
+            </button>
+            <button type="button" class="btn btn-ghost" onclick="resetQuiz()">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Interactive Quiz Runner -->
+      <div id="results-quiz" class="quiz-runner-container hidden">
+        <!-- Quiz Banner & Progress -->
+        <div class="card quiz-banner-card">
+          <div class="quiz-banner-left">
+            <span class="badge badge-emerald">5 Questions</span>
+            <span class="quiz-banner-topic" id="quiz-display-topic">Topic Name</span>
+          </div>
+          <div class="quiz-banner-right" id="quiz-progress-text">
+            Answered: <span id="quiz-answered-count">0</span> / 5
+          </div>
+        </div>
+
+        <!-- Quiz Question Cards Container -->
+        <div id="quiz-questions-list" class="quiz-cards-list"></div>
+
+        <!-- Quiz Submit Bar -->
+        <div class="quiz-submit-bar" id="quiz-submit-bar">
+          <button type="button" id="btn-submit-quiz-answers" class="btn btn-primary btn-lg" onclick="gradeQuiz()" disabled>
+            Submit Quiz for Instant Scoring
+          </button>
+          <span class="quiz-submit-hint" id="quiz-submit-hint">Please answer all 5 questions to view your final score.</span>
+        </div>
+
+        <!-- Quiz Score Results Display (Shown after grading) -->
+        <div id="quiz-score-card" class="card score-card hidden">
+          <div class="score-circular" id="score-circle">
+            <span class="score-percent" id="score-percentage">100%</span>
+          </div>
+          <h3 class="score-title" id="score-title">Score: 5 / 5 Correct</h3>
+          <p class="score-message" id="score-message">Outstanding job! You've mastered this concept completely.</p>
+          <div class="score-actions">
+            <button type="button" class="btn btn-primary" onclick="retryCurrentQuiz()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Retry This Quiz
+            </button>
+            <button type="button" class="btn btn-outline" onclick="resetQuiz()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              Create New Quiz
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-title text-white">StudyMate AI</div>
+          <p class="text-muted">Make every study session count. Turn confusing topics into clear ideas.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#" onclick="switchTab('explain'); return false;">Explain Topic</a>
+          <a href="#" onclick="switchTab('summarize'); return false;">Summarize Notes</a>
+          <a href="#" onclick="switchTab('quiz'); return false;">Generate Quiz</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>StudyMate AI is an educational study assistant. Always verify critical course material against your syllabus and textbooks.</p>
+        <span class="gemma-pill">Powered by Gemma 4 (26B A4B IT)</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

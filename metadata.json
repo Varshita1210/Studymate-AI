@@ -1,0 +1,6 @@
+{
+  "name": "StudyMate AI",
+  "description": "Make every study session count. Turn confusing topics into clear ideas, dense notes into essentials, and curiosity into confidence. Powered by Gemma 4.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
